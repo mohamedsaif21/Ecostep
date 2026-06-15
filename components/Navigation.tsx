@@ -35,7 +35,7 @@ export default function Navigation() {
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
+        <Link href="/" aria-label="EcoStep AI home" className="flex items-center gap-2 group">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-300/20 to-teal-300/5 border border-emerald-300/25 flex items-center justify-center group-hover:border-emerald-300/50 group-hover:scale-105 transition-all">
             <Leaf className="w-4 h-4 text-emerald-300" />
           </div>
@@ -66,6 +66,7 @@ export default function Navigation() {
         <div className="hidden md:flex items-center gap-3">
           <Link
             href="/calculator"
+            aria-label="Calculate footprint"
             className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-emerald-300 to-teal-300 hover:brightness-110 text-emerald-950 text-sm font-semibold transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-emerald-500/15 active:scale-95"
           >
             Calculate Now
@@ -74,6 +75,10 @@ export default function Navigation() {
 
         {/* Mobile menu button */}
         <button
+          type="button"
+          aria-label={mobileOpen ? 'Close navigation menu' : 'Open navigation menu'}
+          aria-expanded={mobileOpen}
+          aria-controls="mobile-navigation"
           className="md:hidden text-white/70 hover:text-white transition-colors"
           onClick={() => setMobileOpen(!mobileOpen)}
         >
@@ -83,7 +88,7 @@ export default function Navigation() {
 
       {/* Mobile menu */}
       {mobileOpen && (
-        <div className="md:hidden bg-[#060d09]/95 backdrop-blur-md border-b border-emerald-900/30 px-6 py-4 flex flex-col gap-2">
+        <div id="mobile-navigation" className="md:hidden bg-[#060d09]/95 backdrop-blur-md border-b border-emerald-900/30 px-6 py-4 flex flex-col gap-2">
           {navLinks.map((link) => (
             <Link
               key={link.href}
@@ -101,6 +106,7 @@ export default function Navigation() {
           ))}
           <Link
             href="/calculator"
+            aria-label="Calculate footprint"
             onClick={() => setMobileOpen(false)}
             className="mt-2 px-4 py-3 rounded-lg bg-emerald-500 text-white text-sm font-semibold text-center"
           >

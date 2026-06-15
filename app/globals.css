@@ -18,6 +18,30 @@
   ::selection { background: rgba(110,231,183,.25); color: white; }
 }
 
+button:focus,
+input:focus,
+select:focus,
+a:focus-visible {
+  outline: 2px solid #22c55e;
+  outline-offset: 3px;
+}
+
+.feature-card:focus-within,
+.impact-card:focus-within,
+.action-row:focus-within,
+.glass-card:focus-within {
+  border-color: rgba(74, 222, 128, .65);
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, .2);
+}
+
+.skip-link {
+  position: fixed; left: 1rem; top: 1rem; z-index: 100;
+  transform: translateY(-200%); border-radius: .5rem;
+  background: #22c55e; color: #052e16; padding: .65rem 1rem;
+  font-size: .875rem; font-weight: 700; transition: transform .2s ease;
+}
+.skip-link:focus { transform: translateY(0); }
+
 ::-webkit-scrollbar { width: 7px; }
 ::-webkit-scrollbar-track { background: #040906; }
 ::-webkit-scrollbar-thumb { background: #1d5038; border-radius: 999px; }

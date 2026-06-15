@@ -4,14 +4,7 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { ArrowRight, Car, Utensils, Zap, Droplets, ShoppingBag, Trophy, Leaf, RefreshCw, TrendingDown, AlertTriangle, CheckCircle2 } from 'lucide-react';
-
-const co2Map: Record<string, Record<string, number>> = {
-  travel: { walk: 0, public: 2, car: 8, flights: 15 },
-  food: { vegan: 1, vegetarian: 2, mixed: 4, meat: 7 },
-  electricity: { low: 1, medium: 3, high: 6, very_high: 10 },
-  plastic: { none: 0, minimal: 1, average: 3, heavy: 5 },
-  shopping: { minimal: 1, average: 3, high: 6, very_high: 9 },
-};
+import { calculateCarbonFootprint } from '@/lib/carbonCalculator';
 
 const labelMap: Record<string, Record<string, string>> = {
   travel: { walk: 'Walk / Cycle', public: 'Public Transport', car: 'Personal Car', flights: 'Frequent Flights' },
@@ -126,14 +119,7 @@ function ResultContent() {
   const shopping = params.get('shopping') || 'average';
 
   const selections: Record<string, string> = { travel, food, electricity, plastic, shopping };
-  const scores: Record<string, number> = {};
-  let totalCO2 = 0;
-
-  for (const [cat, val] of Object.entries(selections)) {
-    const score = co2Map[cat]?.[val] ?? 0;
-    scores[cat] = score;
-    totalCO2 += score;
-  }
+  const { scores, totalCO2 } = calculateCarbonFootprint(selections);
 
   const highestCategory = Object.entries(scores).sort((a, b) => b[1] - a[1])[0];
 
@@ -191,9 +177,10 @@ function ResultContent() {
               <Leaf className="w-8 h-8 text-emerald-400" />
             </div>
             <h1 className="text-3xl font-bold text-white mb-4">No results yet</h1>
-            <p className="text-white/45 mb-8">Complete the carbon calculator to see your personalized results.</p>
+            <p className="text-slate-300 mb-8">Complete the carbon calculator to see your personalized results.</p>
             <Link
               href="/calculator"
+              aria-label="Calculate footprint"
               className="inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold transition-all duration-200"
             >
               Take the Calculator
@@ -206,11 +193,11 @@ function ResultContent() {
           <>
             {/* Header */}
             <div className="text-center mb-10 animate-fade-up">
-              <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Your Results</span>
+              <span className="text-emerald-300 text-sm font-semibold uppercase tracking-widest">Personal report</span>
               <h1 className="text-3xl md:text-4xl font-bold text-white mt-3 mb-3">
-                Your Carbon Footprint Report
+                Your Carbon Results
               </h1>
-              <p className="text-white/45">
+              <p className="text-slate-300">
                 Based on your daily habits and lifestyle choices.
               </p>
             </div>
@@ -220,7 +207,7 @@ function ResultContent() {
               {/* Daily Score */}
               <div className="glass-card rounded-2xl p-8 text-center relative overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-emerald-500/5 to-transparent pointer-events-none" />
-                <p className="text-sm text-white/40 uppercase tracking-widest font-semibold mb-4">Daily CO₂ Score</p>
+                <p className="text-sm text-slate-300 uppercase tracking-widest font-semibold mb-4">Daily CO₂ Score</p>
                 <div className="relative flex items-center justify-center mb-4">
                   <svg className="w-36 h-36 -rotate-90" viewBox="0 0 120 120">
                     <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="8" />
@@ -237,10 +224,10 @@ function ResultContent() {
                   </svg>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
                     <span className="text-4xl font-black text-white">{totalCO2}</span>
-                    <span className="text-sm text-white/45">kg CO₂/day</span>
+                    <span className="text-sm text-slate-300">kg CO₂/day</span>
                   </div>
                 </div>
-                <p className="text-xs text-white/35">
+                <p className="text-xs text-slate-300">
                   Global avg: ~12 kg CO₂/day
                 </p>
               </div>
@@ -251,7 +238,7 @@ function ResultContent() {
                 <div className={`w-14 h-14 rounded-2xl ${ecoConfig.bg} border ${ecoConfig.border} flex items-center justify-center mb-5`}>
                   <ecoConfig.icon className={`w-7 h-7 ${ecoConfig.text}`} />
                 </div>
-                <p className="text-sm text-white/40 uppercase tracking-widest font-semibold mb-2">Eco Level</p>
+                <p className="text-sm text-slate-300 uppercase tracking-widest font-semibold mb-2">Eco Level</p>
                 <h2 className={`text-3xl font-black ${ecoConfig.text} mb-4`}>{ecoConfig.label}</h2>
                 <p className="text-sm text-white/50 text-center leading-relaxed">{ecoConfig.message}</p>
               </div>
@@ -261,7 +248,7 @@ function ResultContent() {
             <div className="glass-card rounded-2xl p-7 mb-6 animate-fade-up delay-200">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-base font-bold text-white">Category Breakdown</h3>
-                <span className="text-xs text-white/30">kg CO₂ per day</span>
+                <span className="text-xs text-slate-300">kg CO₂ per day</span>
               </div>
               <div className="space-y-4">
                 {Object.entries(scores)
@@ -284,7 +271,7 @@ function ResultContent() {
                           </div>
                           <div className="text-right">
                             <span className="text-sm font-semibold text-white">{score} kg</span>
-                            <span className="text-xs text-white/30 ml-2">({labelMap[cat]?.[selections[cat]]})</span>
+                            <span className="text-xs text-slate-300 ml-2">({labelMap[cat]?.[selections[cat]]})</span>
                           </div>
                         </div>
                         <div className="h-2 bg-white/5 rounded-full overflow-hidden">
@@ -310,8 +297,8 @@ function ResultContent() {
                   <Leaf className="w-4 h-4 text-emerald-400" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-white">AI-Powered Reduction Tips</h3>
-                  <p className="text-xs text-white/35 mt-0.5">Personalized based on your highest-impact areas</p>
+                  <h2 className="text-xl font-bold text-white">Personalized AI Suggestions</h2>
+                  <p className="text-sm text-slate-300 mt-1">Personalized based on your highest-impact areas</p>
                 </div>
               </div>
               <div className="space-y-3">
@@ -336,7 +323,7 @@ function ResultContent() {
                   <Trophy className="w-8 h-8 text-emerald-400" />
                   <div>
                     <p className="text-sm font-bold text-white">Take a Challenge</p>
-                    <p className="text-xs text-white/40 mt-0.5">Put your plan into action</p>
+                    <p className="text-xs text-slate-300 mt-0.5">Put your plan into action</p>
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-emerald-400 group-hover:translate-x-1 transition-transform" />
@@ -344,13 +331,14 @@ function ResultContent() {
 
               <Link
                 href="/calculator"
+                aria-label="Calculate footprint"
                 className="group flex items-center justify-between p-6 rounded-2xl bg-white/[0.03] border border-white/8 hover:bg-white/5 hover:border-white/15 transition-all duration-200"
               >
                 <div className="flex items-center gap-3">
                   <RefreshCw className="w-8 h-8 text-white/40" />
                   <div>
                     <p className="text-sm font-bold text-white">Recalculate</p>
-                    <p className="text-xs text-white/40 mt-0.5">Try different lifestyle choices</p>
+                    <p className="text-xs text-slate-300 mt-0.5">Try different lifestyle choices</p>
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-white/30 group-hover:translate-x-1 transition-transform" />

@@ -88,6 +88,7 @@ export default function CalculatorPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [selections, setSelections] = useState<Record<string, string>>({});
   const [animating, setAnimating] = useState(false);
+  const [validationError, setValidationError] = useState('');
 
   const step = steps[currentStep];
   const selected = selections[step.id];
@@ -96,10 +97,14 @@ export default function CalculatorPage() {
 
   function selectOption(value: string) {
     setSelections((prev) => ({ ...prev, [step.id]: value }));
+    setValidationError('');
   }
 
   function handleNext() {
-    if (!selected) return;
+    if (!selected) {
+      setValidationError('Select an option before continuing.');
+      return;
+    }
     if (isLastStep) {
       const params = new URLSearchParams(
         Object.entries(selections) as [string, string][]
@@ -131,23 +136,28 @@ export default function CalculatorPage() {
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="text-center mb-10 animate-fade-up">
-          <span className="text-emerald-400 text-sm font-semibold uppercase tracking-widest">Carbon Calculator</span>
+          <span className="text-emerald-300 text-sm font-semibold uppercase tracking-widest">Assessment</span>
           <h1 className="text-3xl md:text-4xl font-bold text-white mt-3 mb-3">
-            Discover your eco impact
+            Carbon Footprint Calculator
           </h1>
-          <p className="text-white/45 text-base">
+          <p className="text-slate-300 text-base">
             Answer 5 questions. Get your personal carbon score.
           </p>
         </div>
 
         {/* Progress */}
         <div className="mb-8 animate-fade-up delay-100">
-          <div className="flex items-center justify-between text-sm text-white/40 mb-3">
+          <div className="flex items-center justify-between text-sm text-slate-300 mb-3">
             <span>Step {currentStep + 1} of {steps.length}</span>
             <span>{Math.round(progress)}% complete</span>
           </div>
           <div className="h-1.5 bg-white/5 rounded-full overflow-hidden">
             <div
+              role="progressbar"
+              aria-label="Calculator completion"
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(progress)}
               className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
@@ -168,7 +178,7 @@ export default function CalculatorPage() {
                   {i < currentStep ? (
                     <CheckCircle2 className="w-3.5 h-3.5 text-white" />
                   ) : (
-                    <span className={`text-xs font-medium ${i === currentStep ? 'text-emerald-400' : 'text-white/25'}`}>
+                    <span className={`text-xs font-medium ${i === currentStep ? 'text-emerald-300' : 'text-slate-300'}`}>
                       {i + 1}
                     </span>
                   )}
@@ -191,16 +201,21 @@ export default function CalculatorPage() {
             </div>
             <div>
               <h2 className="text-xl font-bold text-white">{step.title}</h2>
-              <p className="text-sm text-white/40 mt-0.5">{step.subtitle}</p>
+              <p className="text-sm text-slate-300 mt-0.5">{step.subtitle}</p>
             </div>
           </div>
 
           {/* Options */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <fieldset className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <legend className="sr-only">{step.title}</legend>
             {step.options.map((option) => (
               <button
+                type="button"
                 key={option.value}
                 onClick={() => selectOption(option.value)}
+                role="radio"
+                aria-checked={selected === option.value}
+                aria-label={`${option.label}: ${option.description}`}
                 className={`group relative text-left p-5 rounded-xl border transition-all duration-200 ${
                   selected === option.value
                     ? 'bg-emerald-500/15 border-emerald-500/60 shadow-lg shadow-emerald-500/10'
@@ -226,7 +241,7 @@ export default function CalculatorPage() {
                         {option.co2 === 0 ? '0 kg' : `+${option.co2} kg`}
                       </span>
                     </div>
-                    <p className="text-xs text-white/40 mt-1 leading-relaxed">{option.description}</p>
+                    <p className="text-xs text-slate-300 mt-1 leading-relaxed">{option.description}</p>
                   </div>
                 </div>
                 {selected === option.value && (
@@ -236,12 +251,14 @@ export default function CalculatorPage() {
                 )}
               </button>
             ))}
-          </div>
+          </fieldset>
         </div>
 
         {/* Navigation */}
         <div className="flex items-center justify-between mt-6 animate-fade-up delay-300">
           <button
+            type="button"
+            aria-label="Go to previous calculator question"
             onClick={handleBack}
             disabled={currentStep === 0}
             className="flex items-center gap-2 px-5 py-3 rounded-xl border border-white/10 text-white/50 hover:text-white hover:border-white/20 transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed text-sm font-medium"
@@ -251,19 +268,24 @@ export default function CalculatorPage() {
           </button>
 
           <button
+            type="button"
+            aria-label={isLastStep ? 'Calculate footprint' : 'Go to next calculator question'}
+            aria-describedby={validationError ? 'calculator-validation-error' : undefined}
             onClick={handleNext}
-            disabled={!selected}
             className="group flex items-center gap-2 px-7 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-white font-semibold text-sm transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed hover:shadow-lg hover:shadow-emerald-500/25 active:scale-95"
           >
             {isLastStep ? 'See My Results' : 'Next'}
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </div>
+        <p id="calculator-validation-error" role="alert" aria-live="polite" className="mt-3 min-h-5 text-right text-sm font-medium text-red-300">
+          {validationError}
+        </p>
 
         {/* Summary of selections */}
         {Object.keys(selections).length > 0 && (
           <div className="mt-8 glass-card rounded-xl p-5 animate-fade-in">
-            <p className="text-xs text-white/30 uppercase tracking-widest font-semibold mb-3">Your selections so far</p>
+            <p className="text-xs text-slate-300 uppercase tracking-widest font-semibold mb-3">Your selections so far</p>
             <div className="flex flex-wrap gap-2">
               {steps.slice(0, currentStep + 1).map((s) => {
                 const sel = selections[s.id];
