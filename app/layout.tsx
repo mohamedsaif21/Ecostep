@@ -1,19 +1,20 @@
-'use client';
-
 import './globals.css';
 import Navigation from '@/components/Navigation';
+import type { Metadata } from 'next';
+import type { ReactNode } from 'react';
+
+export const metadata: Metadata = {
+  title: 'EcoStep AI | Understand Your Carbon Footprint',
+  description: 'Track, calculate and reduce your carbon footprint with AI-powered personalized tips and eco challenges.',
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
 }) {
   return (
     <html lang="en" className="dark">
-      <head>
-        <title>EcoStep AI | Understand Your Carbon Footprint</title>
-        <meta name="description" content="Track, calculate and reduce your carbon footprint with AI-powered personalized tips and eco challenges." />
-      </head>
       <body className="mesh-bg min-h-screen">
         <a href="#main-content" className="skip-link">Skip to main content</a>
         <Navigation />

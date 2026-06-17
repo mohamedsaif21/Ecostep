@@ -1,55 +1,25 @@
 'use client';
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import {
-  ArrowRight, BarChart3, Bike, Calculator, Car, Check, ChevronRight,
-  Droplets, Globe2, Leaf, Lightbulb, Plane, Recycle, ShieldCheck,
-  ShoppingBag, Sparkles, TrendingDown, Trophy, Utensils, Zap,
+  ArrowRight, Check, ChevronRight, Leaf, ShieldCheck, Sparkles, TrendingDown,
 } from 'lucide-react';
-
-const stats = [
-  ['2 min', 'to understand your impact'],
-  ['5 areas', 'of daily life analyzed'],
-  ['100%', 'personalized recommendations'],
-  ['Free', 'with no sign-up required'],
-];
-
-const steps = [
-  { icon: Calculator, step: '01', title: 'Measure your habits', description: 'Answer a few focused questions about travel, food, energy, shopping, and waste.' },
-  { icon: BarChart3, step: '02', title: 'See what matters', description: 'Get a clear breakdown showing which choices create the largest share of your footprint.' },
-  { icon: TrendingDown, step: '03', title: 'Take better action', description: 'Follow practical recommendations and challenges designed around your real lifestyle.' },
-];
-
-const categories = [
-  { icon: Car, label: 'Transport', description: 'Flights, cars, and daily commutes', value: '38%', tone: 'emerald' },
-  { icon: Utensils, label: 'Food', description: 'Diet choices and food waste', value: '24%', tone: 'lime' },
-  { icon: Zap, label: 'Energy', description: 'Electricity and home heating', value: '19%', tone: 'cyan' },
-  { icon: Droplets, label: 'Water & waste', description: 'Consumption and disposal habits', value: '8%', tone: 'blue' },
-  { icon: ShoppingBag, label: 'Shopping', description: 'Fashion, electronics, and goods', value: '11%', tone: 'amber' },
-  { icon: Globe2, label: 'Total impact', description: 'Your combined daily footprint', value: '7.4t', tone: 'violet' },
-];
-
-const actions = [
-  { icon: Bike, label: 'Bike twice this week', impact: '-4.2 kg CO2' },
-  { icon: Recycle, label: 'Choose reusable packaging', impact: '-1.8 kg CO2' },
-  { icon: Lightbulb, label: 'Lower standby energy', impact: '-0.9 kg CO2' },
-];
+import {
+  homeActions,
+  homeCategories,
+  homeChartBars,
+  homeRecommendationBullets,
+  homeStats,
+  homeSteps,
+  homeSummaryStats,
+  homeTrustBadges,
+  Plane,
+  Trophy,
+} from '@/data/home';
+import { useRevealOnScroll } from '@/hooks/useRevealOnScroll';
 
 export default function HomePage() {
-  useEffect(() => {
-    const nodes = document.querySelectorAll<HTMLElement>('[data-reveal]');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('is-visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.14 });
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, []);
+  useRevealOnScroll();
 
   return (
     <div className="min-h-screen overflow-hidden">
@@ -74,7 +44,7 @@ export default function HomePage() {
               <a href="#how-it-works" className="secondary-button group">See how it works <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" /></a>
             </div>
             <div className="animate-fade-up delay-400 mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-slate-300">
-              {['No account needed', 'Private by design', 'Instant results'].map((item) => (
+              {homeTrustBadges.map((item) => (
                 <span key={item} className="flex items-center gap-2"><span className="flex h-5 w-5 items-center justify-center rounded-full bg-emerald-400/10 text-emerald-300"><Check className="h-3 w-3" /></span>{item}</span>
               ))}
             </div>
@@ -99,14 +69,14 @@ export default function HomePage() {
                     <div className="metric-card p-4">
                       <div className="flex justify-between text-xs"><span className="text-slate-300">Today&apos;s score</span><span className="text-emerald-300">Good</span></div>
                       <div className="mt-4 flex items-end gap-1.5">
-                        {[38, 55, 46, 70, 58, 82, 67, 91, 76, 88].map((height, index) => <span key={index} className="chart-bar flex-1 rounded-full bg-gradient-to-t from-emerald-700 to-emerald-300" style={{ height: `${height}px`, animationDelay: `${index * 70 + 500}ms` }} />)}
+                        {homeChartBars.map((height, index) => <span key={height} className="chart-bar flex-1 rounded-full bg-gradient-to-t from-emerald-700 to-emerald-300" style={{ height: `${height}px`, animationDelay: `${index * 70 + 500}ms` }} />)}
                       </div>
                     </div>
                     <div className="metric-card p-4"><div className="flex items-center gap-3"><div className="flex h-10 w-10 items-center justify-center rounded-xl bg-amber-300/10 text-amber-300"><Plane className="h-5 w-5" /></div><div className="flex-1"><p className="text-xs text-slate-300">Largest impact</p><p className="mt-0.5 text-sm font-medium text-slate-200">Transport</p></div><span className="text-sm font-semibold text-white">38%</span></div></div>
                   </div>
                 </div>
                 <div className="mt-4 grid grid-cols-3 gap-3">
-                  {[['12', 'actions'], ['6', 'day streak'], ['24kg', 'CO2 saved']].map(([value, label]) => <div key={label} className="metric-card px-3 py-3 text-center"><div className="text-base font-semibold text-slate-100">{value}</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-slate-300">{label}</div></div>)}
+                  {homeSummaryStats.map(([value, label]) => <div key={label} className="metric-card px-3 py-3 text-center"><div className="text-base font-semibold text-slate-100">{value}</div><div className="mt-0.5 text-[10px] uppercase tracking-wider text-slate-300">{label}</div></div>)}
                 </div>
               </div>
             </div>
@@ -116,7 +86,7 @@ export default function HomePage() {
         </div>
 
         <div className="relative mx-auto mt-24 grid max-w-7xl grid-cols-2 gap-px overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.06] md:grid-cols-4" data-reveal>
-          {stats.map(([value, label]) => <div key={label} className="bg-[#07110c]/90 px-5 py-6 text-center backdrop-blur-xl"><div className="text-2xl font-semibold text-white">{value}</div><div className="mt-1 text-xs leading-5 text-slate-300">{label}</div></div>)}
+          {homeStats.map(([value, label]) => <div key={label} className="bg-[#07110c]/90 px-5 py-6 text-center backdrop-blur-xl"><div className="text-2xl font-semibold text-white">{value}</div><div className="mt-1 text-xs leading-5 text-slate-300">{label}</div></div>)}
         </div>
       </section>
 
@@ -124,7 +94,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl">
           <div className="section-heading" data-reveal><span className="eyebrow">Simple by design</span><h2>Carbon Footprint Calculator</h2><p>EcoStep turns complex emissions data into a focused experience you can understand and use.</p></div>
           <div className="mt-16 grid gap-5 lg:grid-cols-3">
-            {steps.map((step, index) => <article key={step.step} className="feature-card group" data-reveal style={{ transitionDelay: `${index * 100}ms` }}><div className="flex items-center justify-between"><div className="icon-box"><step.icon className="h-5 w-5" /></div><span className="text-xs tracking-[0.2em] text-slate-300">{step.step}</span></div><h3 className="mt-8 text-xl font-semibold text-white">{step.title}</h3><p className="mt-3 text-sm leading-7 text-slate-300">{step.description}</p><div className="mt-8 h-px bg-gradient-to-r from-emerald-300/30 to-transparent" /></article>)}
+            {homeSteps.map((step, index) => <article key={step.step} className="feature-card group" data-reveal style={{ transitionDelay: `${index * 100}ms` }}><div className="flex items-center justify-between"><div className="icon-box"><step.icon className="h-5 w-5" /></div><span className="text-xs tracking-[0.2em] text-slate-300">{step.step}</span></div><h3 className="mt-8 text-xl font-semibold text-white">{step.title}</h3><p className="mt-3 text-sm leading-7 text-slate-300">{step.description}</p><div className="mt-8 h-px bg-gradient-to-r from-emerald-300/30 to-transparent" /></article>)}
           </div>
         </div>
       </section>
@@ -134,15 +104,15 @@ export default function HomePage() {
         <div className="relative mx-auto max-w-7xl">
           <div className="grid items-end gap-8 lg:grid-cols-2" data-reveal><div><span className="eyebrow">A complete picture</span><h2 className="mt-4 max-w-xl text-4xl font-semibold tracking-[-0.04em] text-white md:text-5xl">Your Carbon Results</h2></div><p className="max-w-xl text-base leading-8 text-slate-300 lg:justify-self-end">One score is not enough. Understand every category, compare its weight, and focus your effort where it creates meaningful change.</p></div>
           <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {categories.map((category, index) => <article key={category.label} className={`impact-card impact-${category.tone}`} data-reveal style={{ transitionDelay: `${(index % 3) * 80}ms` }}><div className="flex items-start justify-between"><div className="impact-icon"><category.icon className="h-5 w-5" /></div><span className="text-2xl font-semibold text-white">{category.value}</span></div><h3 className="mt-8 text-base font-semibold text-slate-100">{category.label}</h3><p className="mt-1 text-sm text-slate-300">{category.description}</p><div className="mt-5 h-1 overflow-hidden rounded-full bg-white/[0.05]"><span className="block h-full w-2/3 rounded-full bg-current opacity-70" /></div></article>)}
+            {homeCategories.map((category, index) => <article key={category.label} className={`impact-card impact-${category.tone}`} data-reveal style={{ transitionDelay: `${(index % 3) * 80}ms` }}><div className="flex items-start justify-between"><div className="impact-icon"><category.icon className="h-5 w-5" /></div><span className="text-2xl font-semibold text-white">{category.value}</span></div><h3 className="mt-8 text-base font-semibold text-slate-100">{category.label}</h3><p className="mt-1 text-sm text-slate-300">{category.description}</p><div className="mt-5 h-1 overflow-hidden rounded-full bg-white/[0.05]"><span className="block h-full w-2/3 rounded-full bg-current opacity-70" /></div></article>)}
           </div>
         </div>
       </section>
 
       <section className="section-shell px-6 py-28">
         <div className="mx-auto grid max-w-7xl items-center gap-16 lg:grid-cols-2">
-          <div data-reveal><span className="eyebrow">Personal, not generic</span><h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white md:text-5xl">Personalized AI Suggestions</h2><p className="mt-6 max-w-xl text-base leading-8 text-slate-300">Recommendations are ranked by relevance and estimated impact, so your next step always feels practical.</p><div className="mt-8 space-y-4">{['Prioritized around your biggest emission sources', 'Progress you can track week by week', 'Challenges that fit into real daily routines'].map((text) => <div key={text} className="flex items-center gap-3 text-sm text-slate-300"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-300/10 text-emerald-300"><Check className="h-3.5 w-3.5" /></span>{text}</div>)}</div><Link href="/challenges" className="mt-9 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200">Explore eco challenges <ArrowRight className="h-4 w-4" /></Link></div>
-          <div className="action-panel" data-reveal><div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-5"><div><p className="text-sm font-semibold text-white">Recommended for you</p><p className="mt-1 text-xs text-slate-300">Highest-impact actions first</p></div><Sparkles className="h-5 w-5 text-emerald-300" /></div><div className="space-y-3 p-4 sm:p-6">{actions.map((action, index) => <div key={action.label} className="action-row" style={{ animationDelay: `${index * 140}ms` }}><div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.035] text-emerald-300"><action.icon className="h-5 w-5" /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-200">{action.label}</p><p className="mt-1 text-xs text-emerald-300">{action.impact}</p></div><button type="button" aria-label={`Mark ${action.label} complete`} className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-slate-300 hover:border-emerald-300/40 hover:text-emerald-300"><Check className="h-4 w-4" /></button></div>)}</div></div>
+          <div data-reveal><span className="eyebrow">Personal, not generic</span><h2 className="mt-4 text-4xl font-semibold tracking-[-0.04em] text-white md:text-5xl">Personalized AI Suggestions</h2><p className="mt-6 max-w-xl text-base leading-8 text-slate-300">Recommendations are ranked by relevance and estimated impact, so your next step always feels practical.</p><div className="mt-8 space-y-4">{homeRecommendationBullets.map((text) => <div key={text} className="flex items-center gap-3 text-sm text-slate-300"><span className="flex h-6 w-6 items-center justify-center rounded-full bg-emerald-300/10 text-emerald-300"><Check className="h-3.5 w-3.5" /></span>{text}</div>)}</div><Link href="/challenges" className="mt-9 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300 hover:text-emerald-200">Explore eco challenges <ArrowRight className="h-4 w-4" /></Link></div>
+          <div className="action-panel" data-reveal><div className="flex items-center justify-between border-b border-white/[0.06] px-6 py-5"><div><p className="text-sm font-semibold text-white">Recommended for you</p><p className="mt-1 text-xs text-slate-300">Highest-impact actions first</p></div><Sparkles className="h-5 w-5 text-emerald-300" /></div><div className="space-y-3 p-4 sm:p-6">{homeActions.map((action, index) => <div key={action.label} className="action-row" style={{ animationDelay: `${index * 140}ms` }}><div className="flex h-11 w-11 items-center justify-center rounded-xl border border-white/[0.06] bg-white/[0.035] text-emerald-300"><action.icon className="h-5 w-5" /></div><div className="min-w-0 flex-1"><p className="truncate text-sm font-medium text-slate-200">{action.label}</p><p className="mt-1 text-xs text-emerald-300">{action.impact}</p></div><button type="button" aria-label={`Mark ${action.label} complete`} className="flex h-8 w-8 items-center justify-center rounded-full border border-white/10 text-slate-300 hover:border-emerald-300/40 hover:text-emerald-300"><Check className="h-4 w-4" /></button></div>)}</div></div>
         </div>
       </section>
 

@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 
 // Format: { THEME_NAME: CSS_SELECTOR }
 const THEMES = { light: '', dark: '.dark' } as const;
+const SAFE_CSS_VALUE = /^[#%(),.\w\s-]+$/;
 
 export type ChartConfig = {
   [k in string]: {
@@ -76,28 +77,29 @@ const ChartStyle = ({ id, config }: { id: string; config: ChartConfig }) => {
     return null;
   }
 
-  return (
-    <style
-      dangerouslySetInnerHTML={{
-        __html: Object.entries(THEMES)
-          .map(
-            ([theme, prefix]) => `
-${prefix} [data-chart=${id}] {
-${colorConfig
-  .map(([key, itemConfig]) => {
-    const color =
-      itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
-      itemConfig.color;
-    return color ? `  --color-${key}: ${color};` : null;
-  })
-  .join('\n')}
-}
-`
-          )
-          .join('\n'),
-      }}
-    />
-  );
+  const chartId = sanitizeCssAttributeValue(id);
+  const styles = Object.entries(THEMES)
+    .map(([theme, prefix]) => {
+      const variables = colorConfig
+        .map(([key, itemConfig]) => {
+          const color =
+            itemConfig.theme?.[theme as keyof typeof itemConfig.theme] ||
+            itemConfig.color;
+          const variableName = sanitizeCssVariableName(key);
+
+          return color && variableName && isSafeCssValue(color)
+            ? `  --color-${variableName}: ${color};`
+            : null;
+        })
+        .filter(Boolean)
+        .join('\n');
+
+      return variables ? `${prefix} [data-chart="${chartId}"] {\n${variables}\n}` : null;
+    })
+    .filter(Boolean)
+    .join('\n');
+
+  return styles ? <style>{styles}</style> : null;
 };
 
 const ChartTooltip = RechartsPrimitive.Tooltip;
@@ -353,6 +355,19 @@ function getPayloadConfigFromPayload(
   return configLabelKey in config
     ? config[configLabelKey]
     : config[key as keyof typeof config];
+}
+
+function sanitizeCssAttributeValue(value: string) {
+  return value.replace(/[^\w-]/g, '');
+}
+
+function sanitizeCssVariableName(value: string) {
+  const sanitizedValue = value.replace(/[^\w-]/g, '');
+  return sanitizedValue || null;
+}
+
+function isSafeCssValue(value: string) {
+  return SAFE_CSS_VALUE.test(value);
 }
 
 export {
